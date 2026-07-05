@@ -1,0 +1,8 @@
+{
+  "name": "bbubbe",
+  "private": true,
+  "scripts": {
+    "naver:setup": "node scripts/naver-setup.mjs",
+    "naver:verify": "node scripts/naver-setup.mjs"
+  }
+}
