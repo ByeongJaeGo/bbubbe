@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>뿌쁘 - 빵 나오는 시간 알림</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background-color: #fff8f0;
+      background-image: url("assets/bread-bg-example-2-watercolor.png");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #3d2c1e;
+      padding: 24px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+      position: relative;
+    }
+
+    .inquiry-btn {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 8px 16px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #c45c26;
+      background: rgba(255, 255, 255, 0.85);
+      border: 2px solid #e8d5c4;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .inquiry-btn:hover {
+      background: #fff;
+      border-color: #c45c26;
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #c45c26;
+      margin-bottom: 32px;
+      letter-spacing: -0.02em;
+    }
+
+    .headline {
+      font-size: 1.25rem;
+      line-height: 1.7;
+      font-weight: 600;
+      margin-bottom: 12px;
+      word-break: keep-all;
+    }
+
+    .beta-notice {
+      font-size: 0.75rem;
+      color: #9a8575;
+      margin-bottom: 28px;
+    }
+
+    .store {
+      margin-bottom: 32px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 16px;
+      border: 1px solid #e8d5c4;
+    }
+
+    .store-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #c45c26;
+      margin-bottom: 8px;
+    }
+
+    .store-desc {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #5c4033;
+      word-break: keep-all;
+    }
+
+    .form-group {
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #5c4033;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1rem;
+      border: 2px solid #e8d5c4;
+      border-radius: 12px;
+      background: #fff;
+      color: #3d2c1e;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input::placeholder {
+      color: #b8a090;
+    }
+
+    .form-group input:focus {
+      border-color: #c45c26;
+    }
+
+    .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 1rem;
+      border: 2px solid #e8d5c4;
+      border-radius: 12px;
+      background: #fff;
+      color: #3d2c1e;
+      outline: none;
+      resize: vertical;
+      min-height: 120px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .form-group textarea:focus {
+      border-color: #c45c26;
+    }
+
+    .form-hint {
+      margin-top: 8px;
+      font-size: 0.75rem;
+      color: #9a8575;
+      line-height: 1.5;
+    }
+
+    .form-hint strong {
+      color: #c45c26;
+    }
+
+    .submit-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      background: #c45c26;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: #a84d1f;
+    }
+
+    .success-message {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #2d6a4f;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #95d5b2;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(61, 44, 30, 0.45);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+
+    .modal.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal__card {
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      text-align: left;
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e8d5c4;
+      box-shadow: 0 16px 40px rgba(61, 44, 30, 0.18);
+      transform: translateY(12px);
+      transition: transform 0.2s;
+    }
+
+    .modal.open .modal__card {
+      transform: translateY(0);
+    }
+
+    .modal__close {
+      float: right;
+      width: 32px;
+      height: 32px;
+      margin: -4px -4px 8px 8px;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: #9a8575;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .modal__close:hover {
+      color: #c45c26;
+    }
+
+    .modal__title {
+      clear: both;
+      margin-bottom: 8px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #3d2c1e;
+    }
+
+    .modal__desc {
+      margin-bottom: 20px;
+      font-size: 0.875rem;
+      color: #9a8575;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 1100;
+      max-width: calc(100% - 48px);
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      background: #3d2c1e;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(61, 44, 30, 0.25);
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, 12px);
+      transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    .toast.error {
+      background: #9b2c2c;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <button type="button" class="inquiry-btn" id="inquiry-open-btn">문의하기</button>
+    <h1 class="logo">뿌쁘</h1>
+    <p class="headline">
+      언제나온지 모르는 빵 먹어서 실망하셨죠?<br>
+      이젠 빵이 나오면 바로 알려드립니다.
+    </p>
+    <p class="beta-notice">
+      현재는 배타 서비스 입니다.<br>
+      추후 메뉴 갯수를 추가할 예정입니다.
+    </p>
+    <section class="store">
+      <p class="store-name">소금도화 천안 불당점</p>
+      <p class="store-desc">따끈한 소금빵 나오는 시간 알림받고 맛있을때 사먹자!</p>
+    </section>
+    <form class="form-group" id="signup-form">
+      <label for="phone">전화번호</label>
+      <input
+        type="tel"
+        id="phone"
+        name="phone"
+        placeholder="010-0000-0000"
+        autocomplete="tel"
+        required
+      >
+      <button type="submit" class="submit-btn">알림 신청</button>
+      <p class="success-message" id="success-message">알림 신청이 완료되었습니다!</p>
+    </form>
+  </main>
+
+  <div class="modal" id="inquiry-modal" aria-hidden="true" role="dialog" aria-labelledby="inquiry-modal-title">
+    <div class="modal__card">
+      <button type="button" class="modal__close" id="inquiry-close-btn" aria-label="닫기">&times;</button>
+      <h2 class="modal__title" id="inquiry-modal-title">문의하기</h2>
+      <p class="modal__desc">궁금한 점을 남겨 주세요 · 운영팀이 확인합니다</p>
+      <form id="inquiry-form" class="form-group">
+        <label for="inquiry-name">이름</label>
+        <input type="text" id="inquiry-name" name="name" required minlength="2" maxlength="40" placeholder="이름">
+        <label for="inquiry-email" style="margin-top: 12px;">이메일</label>
+        <input type="email" id="inquiry-email" name="email" required placeholder="example@email.com" autocomplete="email">
+        <label for="inquiry-subject" style="margin-top: 12px;">제목</label>
+        <input type="text" id="inquiry-subject" name="subject" required minlength="2" maxlength="80" placeholder="문의 제목">
+        <label for="inquiry-message" style="margin-top: 12px;">내용</label>
+        <textarea id="inquiry-message" name="message" required minlength="10" maxlength="2000" rows="6" placeholder="문의 내용을 자세히 적어 주세요."></textarea>
+        <p class="form-hint">등록 후 답변까지 <strong>1~2일</strong> 소요될 수 있습니다.</p>
+        <button type="submit" class="submit-btn">문의 등록</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
